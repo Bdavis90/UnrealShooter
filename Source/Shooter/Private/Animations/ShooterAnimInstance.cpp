@@ -36,6 +36,7 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 	}
 }
 
+// AnimInstance begin play
 void UShooterAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
