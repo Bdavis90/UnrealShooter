@@ -169,16 +169,29 @@ void AShooterCharacter::FireWeapon()
 				Start, 
 				End, 
 				ECC_Visibility);
-
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.f);
 			if(ScreenTraceHit.bBlockingHit) // was there a trace hit
 			{
 				// Beam end point is now trace hit location
 				BeamEndPoint = ScreenTraceHit.Location;
-				if(ImpactParticles)
-				{
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, ScreenTraceHit.Location);
+			}
 
-				}
+			// Perform a second trace, this time from the gun barrel
+			FHitResult WeaponTraceHit;
+			const FVector WeaponTraceStart{ SocketTransform.GetLocation() };
+			const FVector WeaponTraceEnd{ BeamEndPoint };
+			GetWorld()->LineTraceSingleByChannel(WeaponTraceHit, WeaponTraceStart, WeaponTraceEnd, ECC_Visibility);
+			DrawDebugLine(GetWorld(), WeaponTraceStart, WeaponTraceEnd, FColor::Blue, false, 2.f);
+			if(WeaponTraceHit.bBlockingHit) // object between barrel and BeamEndPoint
+			{
+				BeamEndPoint = WeaponTraceHit.Location;
+			}
+
+			// Spawn impact particles after updating BeamEndPoint
+			if (ImpactParticles)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticles, BeamEndPoint);
+
 			}
 
 			if(BeamParticles)
