@@ -4,6 +4,7 @@
 #include "Animations/ShooterAnimInstance.h"
 #include "Actors/ShooterCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 {
@@ -33,6 +34,20 @@ void UShooterAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		{
 			bIsAccelerating = false;
 		}
+
+		// Get the rotation of where the player is aiming 180/-180
+		FRotator AimRotation = ShooterCharacter->GetBaseAimRotation();
+
+		// Get the rotation of the direction the player is moving using its velocity
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(ShooterCharacter->GetVelocity());
+
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+		//FString Msg = FString::Printf(TEXT("Movement Offset %f"), MovementOffsetYaw);
+		//if(GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(1, 0, FColor::White, Msg);
+		//}
+
 	}
 }
 
