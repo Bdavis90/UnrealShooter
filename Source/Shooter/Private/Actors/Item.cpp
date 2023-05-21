@@ -3,6 +3,7 @@
 
 #include "Actors/Item.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AItem::AItem()
@@ -15,6 +16,9 @@ AItem::AItem()
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("COllisonBox"));
 	CollisionBox->SetupAttachment(ItemMesh);
+
+	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
+	PickupWidget->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
