@@ -48,7 +48,6 @@ protected:
 	void LookUp(float Value);
 
 
-
 	// Called when the fire button is pressed
 	void FireWeapon();
 
@@ -83,6 +82,8 @@ protected:
 
 	// Trace for items if OverlappedItemCount > 0
 	void TraceForItems();
+
+	void SpawnDefaultWeapon();
 
 
 public:	
@@ -225,6 +226,14 @@ private:
 	// The AItem we hit last frame
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items", meta = (AllowPrivateAccess = "true"))
 	class AItem* TraceHitItemLastFrame;
+
+	// Currently Equiped Weapon
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class AWeapon* EquipedWeapon;
+
+	// Set this in Blueprints for the default Weapon class
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AWeapon> DefaultWeaponClass;
 
 public:
 
