@@ -8,7 +8,7 @@
 #include "Actors/ShooterCharacter.h"
 
 // Sets default values
-AItem::AItem() : ItemName(FString("Default")), ItemCount(0), ItemRarity(EItemRarity::EIR_Common)
+AItem::AItem() : ItemName(FString("Default")), ItemCount(0), ItemRarity(EItemRarity::EIR_Common), ItemState(EItemState::EIS_PickedUp)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -45,6 +45,9 @@ void AItem::BeginPlay()
 	// Setup overlap for AreaSphere
 	AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
 	AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+
+	// Set item properties based on ItemState
+	SetItemProperties(ItemState);
 
 }
 
@@ -114,10 +117,72 @@ void AItem::SetActiveStars()
 	}
 }
 
+void AItem::SetItemProperties(EItemState State)
+{
+	switch (State)
+	{
+		// Where the Item is on the ground
+	case EItemState::EIS_Pickup:
+		// Set mesh properties
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetVisibility(true);
+		ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		ItemMesh->SetEnableGravity(false);
+		// Set AreaSphere properties
+		AreaSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		// Set CollisionBox properties
+		CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+		CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		break;
+		// When the player is holding the weapon
+	case EItemState::EIS_Equipped:
+		// Set mesh properties
+		ItemMesh->SetSimulatePhysics(false);
+		ItemMesh->SetVisibility(true);
+		ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		ItemMesh->SetEnableGravity(false);
+
+		// Set AreaSphere properties
+		AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// Set CollisionBox properties
+		CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	case EItemState::EIS_Falling:
+		// Set mesh properties
+		ItemMesh->SetSimulatePhysics(true);
+		ItemMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		ItemMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+		ItemMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+		ItemMesh->SetEnableGravity(true);
+
+		// Set AreaSphere properties
+		AreaSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// Set CollisionBox properties
+		CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+		CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
 // Called every frame
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AItem::SetItemState(EItemState State)
+{
+	ItemState = State;
+	SetItemProperties(ItemState);
 }
 
