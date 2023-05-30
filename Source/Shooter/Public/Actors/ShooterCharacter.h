@@ -95,6 +95,9 @@ protected:
 	void SelectButtonPressed();
 	void SelectButtonReleased();
 
+	// Drops currently equipped weapon and equips TraceHitItem
+	void SwapWeapon(AWeapon* WeaponToSwap);
+
 
 public:	
 	// Called every frame
@@ -244,6 +247,10 @@ private:
 	// Set this in Blueprints for the default Weapon class
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class AWeapon> DefaultWeaponClass;
+
+	// The item currently hit by our trace in TraceForItems (could be null)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	AItem* TraceHitItem;
 
 public:
 

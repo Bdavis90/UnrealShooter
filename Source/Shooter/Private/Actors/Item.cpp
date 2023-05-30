@@ -139,6 +139,7 @@ void AItem::SetItemProperties(EItemState State)
 		break;
 		// When the player is holding the weapon
 	case EItemState::EIS_Equipped:
+		PickupWidget->SetVisibility(false);
 		// Set mesh properties
 		ItemMesh->SetSimulatePhysics(false);
 		ItemMesh->SetVisibility(true);
