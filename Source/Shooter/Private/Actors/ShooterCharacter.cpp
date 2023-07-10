@@ -42,7 +42,9 @@ AShooterCharacter::AShooterCharacter() :
 	bFiringBullet(false),
 	AutomaticFireRate(0.1f),
 	bShouldFire(true),
-	bShouldTraceForItems(false)
+	bShouldTraceForItems(false),
+	CameraInterpDistance(250.f),
+	CameraInterpElevation(60.f)
 
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -85,7 +87,7 @@ void AShooterCharacter::BeginPlay()
 
 	// Spawn the default weapon and equip it
 	EquipWeapon(SpawnDefaultWeapon());
-	
+
 }
 
 void AShooterCharacter::InterpCameraFOV(float DeltaTime)
@@ -276,6 +278,24 @@ void AShooterCharacter::IncrementOverlappedItemCount(int8 Amount)
 		bShouldTraceForItems = true;
 	}
 }
+
+FVector AShooterCharacter::GetCameraInterpLocation()
+{
+	const FVector CameraWorldLocation{ FollowCamera->GetComponentLocation() };
+	const FVector CameraForward{ FollowCamera->GetForwardVector() };
+
+	return CameraWorldLocation + CameraForward * CameraInterpDistance + FVector(0.f, 0.f, CameraInterpElevation);
+}
+
+void AShooterCharacter::GetPickupItem(AItem* Item)
+{
+	auto Weapon = Cast<AWeapon>(Item);
+	if (Weapon)
+	{
+		SwapWeapon(Weapon);
+	}
+}
+
 
 void AShooterCharacter::MoveForward(float Value)
 {
@@ -514,7 +534,7 @@ void AShooterCharacter::TraceForItems()
 AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 {
 	// Check the TSubclassOf variable
-	if(DefaultWeaponClass)
+	if (DefaultWeaponClass)
 	{
 		// Spawn the weapon
 		return GetWorld()->SpawnActor<AWeapon>(DefaultWeaponClass);
@@ -525,7 +545,7 @@ AWeapon* AShooterCharacter::SpawnDefaultWeapon()
 
 void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 {
-	if(WeaponToEquip)
+	if (WeaponToEquip)
 	{
 
 		// Get the hand socket
@@ -544,11 +564,11 @@ void AShooterCharacter::EquipWeapon(AWeapon* WeaponToEquip)
 
 void AShooterCharacter::DropWeapon()
 {
-	if(EquippedWeapon)
+	if (EquippedWeapon)
 	{
 		FDetachmentTransformRules DetachmentTransformRules(EDetachmentRule::KeepWorld, true);
 		EquippedWeapon->GetItemMesh()->DetachFromComponent(DetachmentTransformRules);
-		
+
 
 		EquippedWeapon->SetItemState(EItemState::EIS_Falling);
 		EquippedWeapon->ThrowWeapon();
@@ -557,7 +577,7 @@ void AShooterCharacter::DropWeapon()
 
 void AShooterCharacter::SelectButtonPressed()
 {
-	if(TraceHitItem)
+	if (TraceHitItem)
 	{
 		AWeapon* TraceHitWeapon = Cast<AWeapon>(TraceHitItem);
 		SwapWeapon(TraceHitWeapon);
